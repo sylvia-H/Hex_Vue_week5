@@ -1,0 +1,111 @@
+---
+title: 第五週 - Vue 延伸套件
+layout: ./app/layout.ejs
+engine: ejs
+current: index
+---
+
+<div id="app">
+  <!-- 導覽列 -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light | py-5">
+    <div class="container">
+      <!-- 首頁 logo -->
+      <a href="./index.html">
+        <span class="material-icons">
+          cottage
+        </span>
+      </a>
+      <!-- 漢堡 -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarList" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <!-- 選單內容 -->
+      <div class="collapse navbar-collapse justify-content-end" id="navbarList">
+        <ul class="navbar-nav">
+          <li class="nav-item | me-6" @click="openCartCanvas">
+            <!-- 購物車 -->
+            <span class="material-icons text-dark | me-2 me-lg-0">
+              shopping_cart
+            </span>
+            <p class="d-lg-none text-dark">購物車</p>
+          </li>
+          <li class="nav-item d-flex" @click="openLoginModel">
+            <!-- 後台管理人員登入 -->
+            <span class="material-icons text-dark | me-2 me-lg-0">
+              manage_accounts
+            </span>
+            <p class="d-lg-none text-dark">後台管理人員登入</p>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+
+  <!-- 產品列表 -->
+  <section class="container | my-12">
+    <h2 class="text-center">推薦好物</h2>
+    <hr class="my-6">
+    <div class="row">
+        <!-- 第一張卡片 -->
+        <div v-for="item in products" :key="item.id" 
+            class="col-12 col-lg-4 | mb-6">
+            <div class="card rounded-4 overflow-hidden shadow w-100">
+                <div class="ratio ratio-4x3">
+                    <img :src="item.imageUrl" class="card-img-top img-cover" alt="">
+                </div>
+                <div class="card-body">
+                  <div class="mb-4">
+                    <h4 class="mb-2">{{item.title}}</h4>
+                    <p>原價：{{item.origin_price}}</p>
+                    <p>優惠價：{{item.price}}</p>
+                  </div>
+                  <div class="d-flex justify-content-between">
+                    <a href="#" class="btn btn-outline-gray d-flex align-items-center">
+                      <span class="material-icons | me-2">
+                        visibility
+                      </span>
+                      詳細內容
+                    </a>
+                    <button 
+                    @click = "addCart(item.id)" 
+                    :disabled = "item.id===is_loadingItem"
+                    type="button" class="btn btn-dark d-flex align-items-center">
+                      <div v-if="item.id===is_loadingItem" class="spinner-border text-warning" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                      </div>
+                      <div v-else>
+                        <span class="material-icons | me-2">
+                          shopping_cart
+                        </span>
+                        加入購物車
+                      </div>
+                    </button>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </section>
+
+  <footer class="bg-dark">
+    <div class="container | d-flex ai-c justify-content-center | py-6">
+      <!-- Copyright -->
+      <p class="h6 text-white text-center | d-none d-md-block">© 2022. All Rights Reserved.</p>
+      <p class="h6 text-white text-center | d-block d-md-none">© 2021.<br>All Rights Reserved.</p>
+    </div>
+  </footer>
+
+
+  <!-- 元件區 Components -->
+  <modal_login ref="loginModal"></modal_login>
+  <canvas_cart ref="cartCanvas" :carts="carts" v-on:emit-cart="getCart"></canvas_cart>
+  
+  <!-- 元件：vue-loading-overlay -->
+  <loading :active="isLoading">
+    <div class="loadingio-spinner-spinner-r9nl8ighj1"><div class="ldio-7oudh8cl7et">
+    <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+    </div></div>
+  </loading>
+
+</div>

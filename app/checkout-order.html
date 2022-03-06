@@ -1,0 +1,143 @@
+---
+title: 第五週 - Vue 延伸套件
+layout: ./app/layout.ejs
+engine: ejs
+current: index
+---
+
+<div id="app3">
+    <div class="container my-10">
+        <div class="row flex-column-reverse flex-md-row">
+            <!-- 訂單內容 -->
+            <div class="col-12 col-lg-7">
+                
+                <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th scope="col" width="20%"></th>
+                        <th scope="col" class="text-center">品名</th>
+                        <th scope="col" width="10%" class="text-center">單價</th>
+                        <th scope="col" width="20%" class="text-center">數量</th>
+                        <th scope="col" width="8%" class="text-end">刪除</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="item in carts.carts" :key="item.id" class="align-middle">
+                        <td>
+                            <img :src="item.product.imageUrl" :alt="item.product.title"
+                            class="img-cover w-100 h-100">
+                        </td>
+                        <td>
+                            <p>{{item.product.title}}</p>
+                        </td>
+                        <td>
+                            <p class="fw-bold me-6">
+                                NT${{item.product.price}}
+                            </p>
+                        </td>
+                        <td>
+                            <div class="btn-group d-flex justify-content-between align-items-center" 
+                                 role="group" aria-label="Basic">
+                                <button @click="editCart(item.id, item.qty-1)"
+                                    :disabled="item.qty-1 === 0"
+                                    type="button" class="btn btn-warning fw-bold d-none d-md-block">－</button>
+                                <input :value="item.qty" type="text" 
+                                    class="form-control-plaintext p-0 border-0 fw-bold text-black text-center" >
+                                <button @click="editCart(item.id, item.qty+1)"
+                                    type="button" class="btn btn-warning fw-bold d-none d-md-block">＋</button>
+                            </div>
+                        </td>
+                        <td class="text-end">
+                            <button @click="delCart(item.id, item.product.title)"
+                                    class="btn-close" type="button" aria-label="Close">
+                            </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                </table>
+
+            </div>
+            <!-- Info -->
+            <div class="col-12 offset-lg-1 col-lg-4 | mb-16 mb-md-0">
+                <h5>訂購人資訊</h5>
+                <div class="oderder-info mb-10">
+                    <v-form ref="form" v-slot="{ errors }">
+                        <div class="mt-5">
+                            <label for="femail" class="mb-2">Email</label>
+                            <v-field rules="email|required" class="form-control"
+                                     v-model="formData.user.email"
+                                     id="femail" name="E-mail" type="email" placeholder="example@gmail.com"></v-field>
+                            <error-message name="E-mail" class="d-block text-end invalid-feedback"></error-message>
+                        </div>
+                        <div class="mt-5">
+                            <label for="fname" class="mb-2">收件人姓名</label>
+                            <v-field rules="required" class="form-control" 
+                                     v-model="formData.user.name"
+                                     type="text" id="fname" name="收件人姓名" placeholder="請輸入姓名"></v-field>
+                            <error-message name="收件人姓名" class="d-block text-end invalid-feedback"></error-message>
+                        </div>
+                        <div class="mt-5">
+                            <label for="fphone" class="mb-2">收件人電話</label>
+                            <v-field rules="required|min:8|max:10" class="form-control" 
+                                     v-model="formData.user.tel"
+                                     type="tel" id="fphone" name="收件人電話" placeholder="請輸入電話"></v-field>
+                            <error-message name="收件人電話" class="d-block text-end invalid-feedback"></error-message>
+                        </div>
+                        <div class="mt-5">
+                            <label for="faddress" class="mb-2">收件人地址</label>
+                            <v-field rules="required" class="form-control" 
+                                     v-model="formData.user.address"
+                                     type="text" id="faddress" name="收件人地址" placeholder="請輸入地址"></v-field>
+                            <error-message name="收件人地址" class="d-block text-end invalid-feedback"></error-message>
+                        </div>
+                        <div class="mt-5">
+                            <label for="fmsg" class="mb-4">留言</label><br>
+                            <v-field as="textarea" v-model="formData.message"
+                                     class="form-control" cols="10" rows="5"
+                                     type="text" id="fmsg" name="留言" placeholder="請輸入留言" value=""></v-field>
+                        </div>
+                        <!-- subtotal -->
+                        <div class="bg-light p-5 mt-5">
+                            <div class="d-flex jc-sb | mb-6">
+                                <p class="fw-500">小計</p>
+                                <p class="fw-light">NT$ {{ carts.total }} 元</p>
+                            </div>
+                            <div class="d-flex jc-sb | mb-6">
+                                <p class="fw-500">折扣</p>
+                                <p class="fw-light">NT$ {{ carts.total - carts.final_total}} 元</p>
+                            </div>
+                            <div class="d-flex jc-sb">
+                                <p class="fs-5 fw-500">總金額</p>
+                                <p class="fs-5 fw-light">NT$ {{ carts.final_total }} 元</p>
+                            </div>
+                        </div>
+                        <div class="row d-flex justify-content-end | my-8 my-md-4">
+                            <!-- 返回 & 下一步 -->
+                            <div class="col-6">
+                                <a href="./index.html" class="btn btn-outline-primary w-100">
+                                    返回
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <button type="button" @click="submitOrder"
+                                        :disabled="Object.keys(errors).length > 0 || carts.carts?.length === 0"
+                                        class="btn btn-danger w-100">
+                                    送出訂單
+                                </button>
+                            </div>
+                        </div>
+                    </v-form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+  <!-- 元件：vue-loading-overlay -->
+  <loading :active="isLoading">
+    <div class="loadingio-spinner-spinner-r9nl8ighj1"><div class="ldio-7oudh8cl7et">
+    <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+    </div></div>
+  </loading>
+
+</div>
